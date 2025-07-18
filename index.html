@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Basic Chat</title>
+  <style>
+    body { font-family: Arial; }
+    #chat-box { height: 400px; overflow-y: scroll; border: 1px solid #000; padding: 10px; }
+    .message { margin: 5px 0; }
+    .user1 { color: blue; }
+    .user2 { color: green; }
+  </style>
+</head>
+<body>
+
+<h1>Simple Chat Web App</h1>
+<div id="chat-box"></div>
+
+<input type="text" id="messageInput" placeholder="Type your message..." />
+<button onclick="sendMessage()">Send</button>
+
+<script>
+const API_URL = 'https://your-backend.onrender.com';
+
+function fetchMessages() {
+  fetch(API_URL + '/messages')
+    .then(response => response.json())
+    .then(data => {
+      const chatBox = document.getElementById('chat-box');
+      chatBox.innerHTML = '';
+      data.forEach(msg => {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message ' + (msg.user === 'user1' ? 'user1' : 'user2');
+        msgDiv.textContent = msg.user + ': ' + msg.message;
+        chatBox.appendChild(msgDiv);
+      });
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+}
+
+function sendMessage() {
+  const message = document.getElementById('messageInput').value;
+  fetch(API_URL + '/send', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({user: 'user1', message: message})
+  }).then(() => {
+    document.getElementById('messageInput').value = '';
+    fetchMessages();
+  });
+}
+
+setInterval(fetchMessages, 5000);
+fetchMessages();
+</script>
+
+</body>
+</html>
